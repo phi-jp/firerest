@@ -144,7 +144,7 @@
 
     this.root = this;
     this.cacheKey = options.cacheKey;
-    this.headerKey = options.headerKey;
+    this.tokenKey = options.tokenKey;
     this.debug = options.debug;
 
     this._sync();
@@ -153,7 +153,7 @@
   Firerest.prototype.token = function(v) {
     if (v) {
       this._token = v;
-      this.headers(this.headerKey, this._token);
+      this.headers(this.tokenKey, this._token);
       localStorage.setItem(this.cacheKey, v);
       return this;
     }
@@ -192,7 +192,7 @@
   var ref = new Firerest({
     api: 'http://jsonplaceholder.typicode.com',
     cacheKey: 'hoge.foo.bar', // localstorage に保存するためのキー
-    headerKey: 'abcdefg', // header に付与して送るキー
+    tokenKey: 'abcdefg', // header に付与して送るキー
     debug: true,
   });
   ref.log();

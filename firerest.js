@@ -63,14 +63,14 @@
       var root = this.root;
       var token = root.token();
       options.url = this.api;
+      options.data = extend(this.data(), options.data);
 
       if (options.type === 'GET') {
-        options.data = this.data();
       }
       else {
         options.dataType = 'json';
         options.contentType = "application/json; charset=utf-8";
-        options.data = JSON.stringify(this.data());
+        options.data = JSON.stringify(options.data);
       }
       options.beforeSend = function(xhr) {
         var headers = self.headers();
@@ -91,24 +91,28 @@
 
       return a;
     },
-    get: function() {
+    get: function(data) {
       return this.ajax({
         type: 'GET',
+        data: data,
       });
     },
-    put: function() {
+    put: function(data) {
       return this.ajax({
         type: 'PUT',
+        data: data,
       });
     },
-    post: function() {
+    post: function(data) {
       return this.ajax({
         type: 'POST',
+        data: data,
       });
     },
-    del: function() {
+    del: function(data) {
       return this.ajax({
         type: 'DELETE',
+        data: data,
       });
     },
 

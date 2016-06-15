@@ -22,7 +22,12 @@
 
     headers: function(headers) {
       if (headers) {
-        extend(this._headers, headers);
+        if (typeof headers === 'object') {
+          extend(this._headers, headers);
+        }
+        else {
+          this._headers[arguments[0]] = arguments[1];
+        }
         return this;
       }
       else {
@@ -123,48 +128,60 @@
     },
   };
 
-  var Rest = function(options) {
-    this.init(options);
-  };
 
 
   /*
-   * Rest
+   * Firerest
    */
-  Rest.prototype = Object.create(Child.prototype);
+  var Firerest = function(options) {
+    this.init(options);
+  };
 
-  Rest.prototype.init = function(options) {
+  Firerest.prototype = Object.create(Child.prototype);
+
+  Firerest.prototype.init = function(options) {
     Child.prototype.init.call(this, options);
 
     this.root = this;
-    this.tokenKey = options.tokenKey;
+    this.cacheKey = options.cacheKey;
+    this.headerKey = options.headerKey;
     this.debug = options.debug;
 
-    this.sync();
+    this._sync();
   };
-  Rest.prototype.token = function(v) {
+
+  Firerest.prototype.token = function(v) {
     if (v) {
       this._token = v;
-      localStorage.setItem(this.tokenKey, v);
+      this.headers(this.headerKey, this._token);
+      localStorage.setItem(this.cacheKey, v);
       return this;
     }
     else {
       return this._token;
     }
   };
-  Rest.prototype.logout = function() {
-    localStorage.removeItem(this.tokenKey);
-    this._token = null;
-  };
-  Rest.prototype.isLogin = function() {
+  Firerest.prototype.isLogin = function() {
     return !!this._token;
   };
-  Rest.prototype.sync = function() {
-    var token = localStorage.getItem(this.tokenKey);
-    if (token) this.token(token);
+  Firerest.prototype.logout = function() {
+    localStorage.removeItem(this.cacheKey);
+    this._token = null;
+  };
+  Firerest.prototype._sync = function() {
+    var token = localStorage.getItem(this.cacheKey);
+    if (token) {
+      this.token(token);
+      return true;
+    }
+    else {
+      return false;
+    }
+
+    return this;
   };
 
-  window.Rest = Rest;
+  window.Firerest = Firerest;
 
 })();
 
@@ -172,16 +189,17 @@
 // test
 ;(function() {
   return ;
-  var rest = new Rest({
+  var ref = new Firerest({
     api: 'http://jsonplaceholder.typicode.com',
-    tokenKey: 'marcle.auth.token',
+    cacheKey: 'hoge.foo.bar', // localstorage に保存するためのキー
+    headerKey: 'abcdefg', // header に付与して送るキー
     debug: true,
   });
-  rest.log();
-  rest.child('posts').log();
-  rest.child('posts').get().done();
-  rest.child('posts').child(10).get().done();
-  rest.child('posts').child(10).child('comments').get().done();
+  ref.log();
+  ref.child('posts').log();
+  ref.child('posts').get().done();
+  ref.child('posts').child(10).get().done();
+  ref.child('posts').child(10).child('comments').get().done();
 })();
 
 

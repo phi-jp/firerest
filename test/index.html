@@ -33,9 +33,10 @@ app
   
   script.
 
-    var ref = new Rest({
+    var ref = new Firerest({
       api: 'http://jsonplaceholder.typicode.com',
-      tokenKey: 'marcle.auth.token',
+      cacheKey: '_token',
+      headerKey: 'Token',
       debug: true,
     });
 
@@ -101,13 +102,14 @@ post
     var self = this;
     var ref = opts.ref;
     var id = opts.id;
+    var postRef = ref.child('posts').child(id);
 
-    ref.child('posts').child(id).get().done(function(res) {
+    postRef.get().done(function(res) {
       self.post = res;
       self.update();
     });
 
-    ref.child('posts').child(id).child('comments').get().done(function(res) {
+    postRef.child('comments').get().done(function(res) {
       self.comments = res;
       self.update();
     });

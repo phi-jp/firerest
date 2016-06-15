@@ -1,0 +1,123 @@
+<!doctype html>
+ 
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    
+    <title>${title}</title>
+    <meta name="description" content="${description}" />
+  </head>
+  <body>
+    <app></app>
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.js'></script>
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/less.js/2.5.3/less.min.js'></script>
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/jade/1.11.0/jade.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/riot/2.3.18/riot+compiler.js'></script>
+    <script src='../firerest.js'></script>
+  </body>
+</html>
+
+<script type='riot/tag' template='jade'>
+app
+  content
+  
+  style(scoped, type='less').
+    :scope {
+      h1 {
+        color: pink;
+      }
+    }
+  
+  script.
+
+    var ref = new Rest({
+      api: 'http://jsonplaceholder.typicode.com',
+      tokenKey: 'marcle.auth.token',
+      debug: true,
+    });
+
+    riot.route(function(tagName, id) {
+      tagName = tagName || 'home';
+
+      riot.mount('content', tagName, {
+        ref: ref,
+        id: id,
+      });
+    });
+
+    riot.route.start(true);
+    this.img = 'https://www.evernote.com/l/AOJbE-0PaoxKYYJ9HjVXf3SoO4u_Z1luWvwB/image.png';
+    this.msg = 'Hello, Riot.js'
+    this.list = [
+      {
+        label: 'hoge',
+      },
+      {
+        label: 'foo',
+      },
+      {
+        label: 'bar',
+      },
+    ]
+
+home
+  h2 home
+
+  div.posts
+    div(each='{posts}')
+      h3
+        a(href='#post/{id}') {title}
+      p {body}
+
+  script.
+    var self = this;
+    var ref = opts.ref;
+
+    this.posts = [];
+
+    ref.child('posts').get().done(function(res) {
+      self.posts = res.splice(0, 20);
+      self.update();
+    });
+
+post
+  h2
+    a(href='#home') <
+    | 
+    {post.title}
+  div
+    {post.body}
+
+
+  div(if='{comments}')
+    h3 comments
+    div.comments
+      div.comment(each='{comments}') {body}
+
+  script.
+    var self = this;
+    var ref = opts.ref;
+    var id = opts.id;
+
+    ref.child('posts').child(id).get().done(function(res) {
+      self.post = res;
+      self.update();
+    });
+
+    ref.child('posts').child(id).child('comments').get().done(function(res) {
+      self.comments = res;
+      self.update();
+    });
+
+</script>
+
+<script>
+
+var tags = riot.mount('*');
+
+</script>
+
+

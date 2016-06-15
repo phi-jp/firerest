@@ -1,0 +1,23 @@
+{
+  "name": "firerest",
+  "version": "0.0.1",
+  "description": "ajax library for rest like firebase",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phi-jp/firerest.git"
+  },
+  "keywords": [
+    "ajax",
+    "javascript"
+  ],
+  "author": "phi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/phi-jp/firerest/issues"
+  },
+  "homepage": "https://github.com/phi-jp/firerest#readme"
+}

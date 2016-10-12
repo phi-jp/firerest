@@ -87,6 +87,15 @@
         if (root.debug) {
           console.log(options.type, self.api, res);
         }
+
+        root.fire('done', res);
+      });
+
+      a.always(function(res) {
+        root.fire('always', res);
+      });
+      a.error(function(res) {
+        root.fire('error', res);
       });
 
       return a;
@@ -150,6 +159,7 @@
     this.cacheKey = options.cacheKey;
     this.tokenKey = options.tokenKey;
     this.debug = options.debug;
+    this._listeners = [];
 
     this._sync();
   };
@@ -181,6 +191,23 @@
     else {
       return false;
     }
+
+    return this;
+  };
+
+  // events
+  Firerest.prototype.on = function(type, func) {
+    if (!this._listeners[type]) this._listeners[type] = [];
+    this._listeners[type].push(func);
+
+    return this;
+  };
+  Firerest.prototype.fire = function(type, options) {
+    if (!this._listeners[type]) return ;
+
+    this._listeners[type].forEach(function(func) {
+      func.call(this, options);
+    });
 
     return this;
   };

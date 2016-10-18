@@ -68,10 +68,11 @@
       if (options.type === 'GET') {
       }
       else {
-        options.dataType = 'json';
         options.contentType = "application/json; charset=utf-8";
         options.data = JSON.stringify(options.data);
       }
+      options.dataType = 'json';
+
       options.beforeSend = function(xhr) {
         var headers = self.headers();
 
@@ -80,7 +81,6 @@
           xhr.setRequestHeader(key, v);
         }
       };
-
       var a = $.ajax(options);
 
       a.done(function(res) {

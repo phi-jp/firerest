@@ -94,8 +94,11 @@
       a.always(function(res) {
         root.fire('always', res);
       });
-      a.error(function(res) {
-        root.fire('error', res);
+      a.done(function(res) {
+        root.fire('done', res);
+      });
+      a.fail(function(res) {
+        root.fire('fail', res);
       });
 
       return a;

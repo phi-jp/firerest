@@ -83,10 +83,10 @@
     ajax: function(options) {
       var self = this;
       var root = this.root;
-      var data = extend(this.data(), options.data);
       var headers = this.headers();
       var api = this.api;
       var query = '';
+      var data = '';
 
       if (options.type === 'GET') {
         query = qs.stringify(data);
@@ -94,7 +94,7 @@
       }
       else {
         headers['Content-Type'] = 'application/json; charset=utf-8';
-        data = JSON.stringify(options.data);
+        data = JSON.stringify( extend(this.data(), options.data) );
       }
 
       options.beforeSend = function(xhr) {

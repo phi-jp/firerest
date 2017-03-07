@@ -86,11 +86,13 @@
       var headers = this.headers();
       var api = this.api;
       var query = '';
-      var data = '';
+      var data = null;
 
       if (options.type === 'GET') {
-        query = qs.stringify(data);
-        query && (api += '?');
+        if (options.data) {
+          query = qs.stringify(options.data);
+          api += '?';
+        }
       }
       else {
         headers['Content-Type'] = 'application/json; charset=utf-8';

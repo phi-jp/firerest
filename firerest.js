@@ -108,24 +108,27 @@
 
       var p = fetch(api + query, {
         method: options.type,
-        headers: self.headers(),
-
+        headers: headers,
         body: data,
       }).then(function(res) {
         return res.json();
       });
 
       p.then(function(res) {
-        root.fire('done', res);
+        root.fire('success', res);
+        return res;
       });
       p.catch(function(res) {
         root.fire('fail', res);
+        return res;
       });
       p.then(function(res) {
         if (root.debug) {
           console.log(options.type, api, res);
         }
         root.fire('always', res);
+
+        return res;
       });
 
       return p;

@@ -97,15 +97,6 @@
         data = JSON.stringify( extend(this.data(), options.data) );
       }
 
-      options.beforeSend = function(xhr) {
-        var headers = self.headers();
-
-        for (var key in headers) {
-          var v = headers[key];
-          xhr.setRequestHeader(key, v);
-        }
-      };
-
       var p = fetch(api + query, {
         method: options.type,
         headers: headers,

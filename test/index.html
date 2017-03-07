@@ -36,7 +36,7 @@ app
   
   script.
 
-    var ref = new Firerest({
+    var ref = Firerest.create({
       api: 'http://jsonplaceholder.typicode.com',
       cacheKey: '_token',
       tokenKey: 'Token',
@@ -82,7 +82,7 @@ home
 
     this.posts = [];
 
-    ref.child('posts').get().done(function(res) {
+    ref.child('posts').get().then(function(res) {
       self.posts = res.splice(0, 20);
       self.update();
     });
@@ -107,12 +107,12 @@ post
     var id = opts.id;
     var postRef = ref.child('posts').child(id);
 
-    postRef.get().done(function(res) {
+    postRef.get().then(function(res) {
       self.post = res;
       self.update();
     });
 
-    postRef.child('comments').get().done(function(res) {
+    postRef.child('comments').get().then(function(res) {
       self.comments = res;
       self.update();
     });

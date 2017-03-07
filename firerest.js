@@ -1,4 +1,11 @@
-;(function() {
+;(function(exports) {
+
+  var fetch = (typeof module === "object" && typeof module.exports === "object" ) ? require('node-fetch') : window.fetch;
+
+  if (typeof localStorage === "undefined" || localStorage === null) {
+    var LocalStorage = require('node-localstorage').LocalStorage;
+    localStorage = new LocalStorage('./firerest');
+  }
 
   var extend = function(a, b) {
     for (var key in b) {
@@ -238,10 +245,11 @@
     return this;
   };
 
-  window.Firerest = Firerest;
+  exports.create = function(options) {
+    return new Firerest(options);
+  };
 
-})();
-
+})(typeof exports === 'undefined' ? this.Firerest = {} : exports);
 
 // test
 ;(function() {

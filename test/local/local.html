@@ -114,7 +114,7 @@ index
 
     this.on('active', function(e){
       ref.child('student').get().then(function(res){
-        self.students = res.data;
+        self.students = res;
         self.update();
       }).catch(function(res){
         console.log(res);
@@ -134,7 +134,7 @@ show
     }
     this.on('active', function(e){
       ref.child('student/'+e.args[1]).get().then(function(res){
-        self.student = res.data;
+        self.student = res;
         self.update();
       });
     });

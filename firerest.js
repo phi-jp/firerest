@@ -165,53 +165,44 @@
         return Promise.reject('not found local items');
       }
 
-      var promise = function(f){
-        return new Promise(function(resolve) {
-          var res = f();
-          if( res.status === 200 || res.status === 201 ) {
-            resolve(res);
-          }
-        });
-      }
+      var func = null;
 
       switch(options.type) {
         case 'GET':
-          var p = promise(function() {
-            r.data = getFromPath(localData, api);
-            r.status = 200;
-            return r;
-          });
+          func = function(resolve) {
+            var data = getFromPath(localData, api);
+            resolve(data);
+          };
           break;
         case 'PUT':
-          var p = promise(function() {
-            r.data = getFromPath(localData, api);
+          func = function(resolve) {
+            var data = getFromPath(localData, api);
             extend(r.data, options.data);
-            r.status = 200;
-            return r;
-          });
+            resolve(data);
+          };
           break;
         case 'POST':
-          id = options.data.id;
-          var p = promise(function() {
+          func = function(resolve) {
+            id = options.data.id;
             setFromPath(localData, api+'/'+id, options.data);
-            r.status = 201;
-            return r;
-          });
+            resolve(options.data);
+          };
           break;
         case 'DELETE':
-          var p = promise(function() {
+          func = function(resolve) {
             var pathes = api.split('/');
             var key = pathes.pop();
             var path = pathes.join('/');
             var obj = getFromPath(localData, path);
 
             delete obj[key];
-            r.status = 200;
 
-            return r;
-          });
+            resolve(null);
+          };
           break;
       }
+
+      var p = new Promise(func);
 
       p.then(function(res) {
         root.fire('success', res);

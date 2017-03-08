@@ -1,4 +1,11 @@
-;(function() {
+;(function(exports) {
+
+  var fetch = (typeof module === "object" && typeof module.exports === "object" ) ? require('node-fetch') : window.fetch;
+
+  if (typeof localStorage === "undefined" || localStorage === null) {
+    var LocalStorage = require('node-localstorage').LocalStorage;
+    localStorage = new LocalStorage('./firerest');
+  }
 
   var extend = function(a, b) {
     for (var key in b) {
@@ -6,6 +13,28 @@
       a[key] = v;
     }
     return a;
+  };
+
+  var qs = {  
+    parse: function(text, sep, eq, isDecode) {
+      text = text || location.search.substr(1);
+      sep = sep || '&';
+      eq = eq || '=';
+      var decode = (isDecode) ? decodeURIComponent : function(a) { return a; };
+      return text.split(sep).reduce(function(obj, v) {
+        var pair = v.split(eq);
+        obj[pair[0]] = decode(pair[1]);
+        return obj;
+      }, {});
+    },
+    stringify: function(value, sep, eq, isEncode) {
+      sep = sep || '&';
+      eq = eq || '=';
+      var encode = (isEncode) ? encodeURIComponent : function(a) { return a; };
+      return Object.keys(value).map(function(key) {
+        return key + eq + encode(value[key]);
+      }).join(sep);
+    },
   };
 
 
@@ -58,50 +87,51 @@
       }
     },
 
-    ajax: function(options, ajaxOptions) {
+    ajax: function(options) {
       var self = this;
       var root = this.root;
-      var token = root.token();
-      options.url = this.api;
-      options.data = extend(this.data(), options.data);
+      var headers = this.headers();
+      var api = this.api;
+      var query = '';
+      var data = null;
 
       if (options.type === 'GET') {
+        if (options.data) {
+          query = qs.stringify(options.data);
+          api += '?';
+        }
       }
       else {
-        options.contentType = "application/json; charset=utf-8";
-        options.data = JSON.stringify(options.data);
+        headers['Content-Type'] = 'application/json; charset=utf-8';
+        data = JSON.stringify( extend(this.data(), options.data) );
       }
-      options.dataType = 'json';
 
-      options.beforeSend = function(xhr) {
-        var headers = self.headers();
-
-        for (var key in headers) {
-          var v = headers[key];
-          xhr.setRequestHeader(key, v);
-        }
-      };
-      var a = $.ajax(options);
-
-      a.done(function(res) {
-        if (root.debug) {
-          console.log(options.type, self.api, res);
-        }
-
-        root.fire('done', res);
+      var p = fetch(api + query, {
+        method: options.type,
+        headers: headers,
+        body: data,
+      }).then(function(res) {
+        return res.json();
       });
 
-      a.always(function(res) {
-        root.fire('always', res);
+      p.then(function(res) {
+        root.fire('success', res);
+        return res;
       });
-      a.done(function(res) {
-        root.fire('done', res);
-      });
-      a.fail(function(res) {
+      p.catch(function(res) {
         root.fire('fail', res);
+        return res;
+      });
+      p.then(function(res) {
+        if (root.debug) {
+          console.log(options.type, api, res);
+        }
+        root.fire('always', res);
+
+        return res;
       });
 
-      return a;
+      return p;
     },
     get: function(data) {
       return this.ajax({
@@ -215,10 +245,11 @@
     return this;
   };
 
-  window.Firerest = Firerest;
+  exports.create = function(options) {
+    return new Firerest(options);
+  };
 
-})();
-
+})(typeof exports === 'undefined' ? this.Firerest = {} : exports);
 
 // test
 ;(function() {

@@ -159,9 +159,9 @@
       var api = this.api;
       var root = this.root;
       var r = { data:[] }
-      var localItems = this.root.localItems;
+      var localData = this.root.localData;
 
-      if(!localItems) {
+      if(!localData) {
         return Promise.reject('not found local items');
       }
 
@@ -177,14 +177,14 @@
       switch(options.type) {
         case 'GET':
           var p = promise(function() {
-            r.data = getFromPath(localItems, api);
+            r.data = getFromPath(localData, api);
             r.status = 200;
             return r;
           });
           break;
         case 'PUT':
           var p = promise(function() {
-            r.data = getFromPath(localItems, api);
+            r.data = getFromPath(localData, api);
             extend(r.data, options.data);
             r.status = 200;
             return r;
@@ -193,7 +193,7 @@
         case 'POST':
           id = options.data.id;
           var p = promise(function() {
-            setFromPath(localItems, api+'/'+id, options.data);
+            setFromPath(localData, api+'/'+id, options.data);
             r.status = 201;
             return r;
           });
@@ -203,7 +203,7 @@
             var pathes = api.split('/');
             var key = pathes.pop();
             var path = pathes.join('/');
-            var obj = getFromPath(localItems, path);
+            var obj = getFromPath(localData, path);
 
             delete obj[key];
             r.status = 200;
@@ -273,7 +273,7 @@
 
     migrate: function(data) {
       var key = this.api;
-      setFromPath(this.root.localItems, key, data);
+      setFromPath(this.root.localData, key, data);
       return this;
     },
 
@@ -303,7 +303,7 @@
     this.tokenKey = options.tokenKey;
     this.debug = options.debug;
     this.local = options.local;
-    this.localItems = {};
+    this.localData = {};
     this._listeners = [];
 
     this._sync();

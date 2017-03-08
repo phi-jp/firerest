@@ -15,7 +15,7 @@
     return a;
   };
 
-  var qs = {  
+  var qs = {
     parse: function(text, sep, eq, isDecode) {
       text = text || location.search.substr(1);
       sep = sep || '&';
@@ -87,7 +87,7 @@
       }
     },
 
-    ajax: function(options) {
+    _fetch: function(options) {
       var self = this;
       var root = this.root;
       var headers = this.headers();
@@ -133,36 +133,126 @@
 
       return p;
     },
+    _fetchByUrl: function(options) {
+      var self = this;
+      var category = this.api.split('/')[0];
+      var id  = this.api.split('/')[1];
+      var root = this.root;
+      var r = { data:[] }
+      var localItems = this.root.localItems[category];
+
+      if(!localItems) {
+        return Promise.reject(new Error('not found local items').toString());
+      }
+
+      var promise = function(f){
+        return new Promise(function(resolve){
+          var res = f();
+          if(res) {
+            resolve(res);
+          }
+        });
+      }
+
+      switch(options.type) {
+        case 'GET':
+          var p = promise(function(){
+            if(id && localItems[id]) {
+              r.data = localItems[id];
+            }else{
+              Object.keys(localItems).forEach(function(key){
+                r.data.push(localItems[key]);
+              });
+            }
+            r.status = 200;
+            return r;
+          });
+          break;
+        case 'PUT':
+          var p = promise(function(){
+            if(id && localItems[id]) {
+              localItems[id] = options.data;
+              r.data = localItems[id];
+              r.status = 200;
+              return r;
+            }
+          });
+          break;
+        case 'POST':
+          id = options.data.id;
+          var p = promise(function() {
+            localItems[id] = options.data;
+            r.data = localItems[id];
+            r.status = 201;
+            return r;
+          });
+          break;
+        case 'DELETE':
+          var p = promise(function() {
+            if(id && localItems[id]) {
+              delete localItems[id];
+              r.data = localItems[id];
+              r.status = 200;
+              return r
+            }
+          });
+          break;
+      }
+
+      p.then(function(res) {
+        root.fire('success', res);
+        return res;
+      });
+      p.catch(function(res) {
+        root.fire('fail', res);
+        return res;
+      });
+      p.then(function(res) {
+        root.fire('always', res)
+        if (root.debug) {
+          console.log(options.type, self.api, res);
+        }
+        return res;
+      });
+
+      return p;
+    },
+
     get: function(data) {
-      return this.ajax({
+      return this.fetch({
         type: 'GET',
         data: data,
       });
     },
     put: function(data) {
-      return this.ajax({
+      return this.fetch({
         type: 'PUT',
         data: data,
       });
     },
     post: function(data) {
-      return this.ajax({
+      return this.fetch({
         type: 'POST',
         data: data,
       });
     },
     del: function(data) {
-      return this.ajax({
+      return this.fetch({
         type: 'DELETE',
         data: data,
       });
     },
 
     child: function(api) {
-      var child = new Child({
-        api: this.api + '/' + api,
-      });
-
+      if(!this.root.local) {
+        var child = new Child({
+          api: this.api + '/' + api,
+        });
+      }else{
+        var child = new Child({
+          api: api,
+        });
+      }
       child.root = this.root;
       child.parent = this;
 
@@ -172,9 +262,21 @@
     log: function() {
       console.log(this.api);
     },
+
+    migrate: function(options) {
+      var key = this.api;
+      this.root.localItems[key] = options;
+      return this;
+    },
+
+    fetch: function(options) {
+      if(this.root.local) {
+        return this._fetchByUrl(options);
+      }else{
+        return this._fetch(options);
+      }
+    }
   };
-
-
 
   /*
    * Firerest
@@ -192,6 +294,8 @@
     this.cacheKey = options.cacheKey;
     this.tokenKey = options.tokenKey;
     this.debug = options.debug;
+    this.local = options.local;
+    this.localItems = {};
     this._listeners = [];
 
     this._sync();

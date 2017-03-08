@@ -55,8 +55,6 @@
     }, obj);
   };
 
-  var obj = {};
-
   var Child = function(options) {
     this.init(options);
   };
@@ -152,13 +150,10 @@
 
       return p;
     },
-    _fetchByUrl: function(options) {
+    _fetchFromLocal: function(options) {
       var self = this;
-      var category = this.api.split('/')[0];
-      var id  = this.api.split('/')[1];
       var api = this.api;
       var root = this.root;
-      var r = { data:[] }
       var localData = this.root.localData;
 
       if(!localData) {
@@ -270,7 +265,7 @@
 
     fetch: function(options) {
       if(this.root.local) {
-        return this._fetchByUrl(options);
+        return this._fetchFromLocal(options);
       }else{
         return this._fetch(options);
       }

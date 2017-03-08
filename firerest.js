@@ -142,7 +142,7 @@
       var localItems = this.root.localItems[category];
 
       if(!localItems) {
-        return Promise.reject(new Error('not found local items').toString());
+        return Promise.reject('not found local items');
       }
 
       var promise = function(f){

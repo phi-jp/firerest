@@ -148,7 +148,7 @@
       var promise = function(f){
         return new Promise(function(resolve){
           var res = f();
-          if(res) {
+          if( res.status === 200 || res.status === 201 ) {
             resolve(res);
           }
         });
@@ -193,7 +193,7 @@
               delete localItems[id];
               r.data = localItems[id];
               r.status = 200;
-              return r
+              return r;
             }
           });
           break;

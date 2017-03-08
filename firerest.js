@@ -146,7 +146,7 @@
       }
 
       var promise = function(f){
-        return new Promise(function(resolve){
+        return new Promise(function(resolve) {
           var res = f();
           if( res.status === 200 || res.status === 201 ) {
             resolve(res);
@@ -160,7 +160,7 @@
             if(id && localItems[id]) {
               r.data = localItems[id];
             }else{
-              Object.keys(localItems).forEach(function(key){
+              Object.keys(localItems).forEach(function(key) {
                 r.data.push(localItems[key]);
               });
             }
@@ -169,7 +169,7 @@
           });
           break;
         case 'PUT':
-          var p = promise(function(){
+          var p = promise(function() {
             if(id && localItems[id]) {
               localItems[id] = options.data;
               r.data = localItems[id];

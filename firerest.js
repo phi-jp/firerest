@@ -37,6 +37,25 @@
     },
   };
 
+  var setFromPath = function(obj, key, value) {
+    key.split('/').reduce(function(t, v, i, arr) {
+      if (i === (arr.length-1)) {
+        t[v] = value;
+      }
+      else {
+        if (!t[v]) t[v] = {};
+        return t[v];
+      }
+    }, obj);
+  };
+
+  var getFromPath = function(obj, key) {
+    return key.split('/').reduce(function(t, v) {
+      return t && t[v];
+    }, obj);
+  };
+
+  var obj = {};
 
   var Child = function(options) {
     this.init(options);
@@ -137,9 +156,10 @@
       var self = this;
       var category = this.api.split('/')[0];
       var id  = this.api.split('/')[1];
+      var api = this.api;
       var root = this.root;
       var r = { data:[] }
-      var localItems = this.root.localItems[category];
+      var localItems = this.root.localItems;
 
       if(!localItems) {
         return Promise.reject('not found local items');
@@ -156,45 +176,39 @@
 
       switch(options.type) {
         case 'GET':
-          var p = promise(function(){
-            if(id && localItems[id]) {
-              r.data = localItems[id];
-            }else{
-              Object.keys(localItems).forEach(function(key) {
-                r.data.push(localItems[key]);
-              });
-            }
+          var p = promise(function() {
+            r.data = getFromPath(localItems, api);
             r.status = 200;
             return r;
           });
           break;
         case 'PUT':
           var p = promise(function() {
-            if(id && localItems[id]) {
-              localItems[id] = options.data;
-              r.data = localItems[id];
-              r.status = 200;
-              return r;
-            }
+            r.data = getFromPath(localItems, api);
+            extend(r.data, options.data);
+            r.status = 200;
+            return r;
           });
           break;
         case 'POST':
           id = options.data.id;
           var p = promise(function() {
-            localItems[id] = options.data;
-            r.data = localItems[id];
+            setFromPath(localItems, api+'/'+id, options.data);
             r.status = 201;
             return r;
           });
           break;
         case 'DELETE':
           var p = promise(function() {
-            if(id && localItems[id]) {
-              delete localItems[id];
-              r.data = localItems[id];
-              r.status = 200;
-              return r;
-            }
+            var pathes = api.split('/');
+            var key = pathes.pop();
+            var path = pathes.join('/');
+            var obj = getFromPath(localItems, path);
+
+            delete obj[key];
+            r.status = 200;
+
+            return r;
           });
           break;
       }
@@ -244,15 +258,9 @@
     },
 
     child: function(api) {
-      if(!this.root.local) {
-        var child = new Child({
-          api: this.api + '/' + api,
-        });
-      }else{
-        var child = new Child({
-          api: api,
-        });
-      }
+      var child = new Child({
+        api: this.api + '/' + api,
+      });
       child.root = this.root;
       child.parent = this;
 
@@ -263,9 +271,9 @@
       console.log(this.api);
     },
 
-    migrate: function(options) {
+    migrate: function(data) {
       var key = this.api;
-      this.root.localItems[key] = options;
+      setFromPath(this.root.localItems, key, data);
       return this;
     },
 

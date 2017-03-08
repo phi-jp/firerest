@@ -104,7 +104,7 @@ app-home
 index
   button.back(onclick="{riot.spat.back}") 戻る
   div　生徒一覧
-  div(each="{this.students}" onclick="{riot.spat.goto}" href="show/{id}") {name}
+  div(each="{key, value in students}" onclick="{riot.spat.goto}" href="show/{value.id}") {value.name}
   script.
     this.animation = {
       name: 'slide',

@@ -111,7 +111,18 @@
         headers: headers,
         body: data,
       }).then(function(res) {
-        return res.json();
+        // refs
+        // - https://www.tjvantoll.com/2015/09/13/fetch-and-errors/
+        // - http://blog.mudatobunka.org/entry/2016/04/26/092518
+        if (!res.ok) {
+          throw new Error(res.statusText);
+          // return res.json().then(function(err) {
+          //   throw Error(err);
+          // });
+        }
+        else {
+          return res.json();
+        }
       });
 
       p.then(function(res) {

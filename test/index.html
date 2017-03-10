@@ -1,11 +1,11 @@
 <!doctype html>
- 
+
 <html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, user-scalable=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    
+
     <title>${title}</title>
     <meta name="description" content="${description}" />
   </head>
@@ -18,7 +18,7 @@
 
     <!-- fetch polyfill -->
     <script src='https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js'></script>
-    
+
     <script src='../firerest.js'></script>
   </body>
 </html>
@@ -26,14 +26,14 @@
 <script type='riot/tag' template='jade'>
 app
   content
-  
+
   style(scoped, type='less').
     :scope {
       h1 {
         color: pink;
       }
     }
-  
+
   script.
 
     var ref = Firerest.create({
@@ -90,7 +90,6 @@ home
 post
   h2
     a(href='#home') <
-    | 
     {post.title}
   div
     {post.body}

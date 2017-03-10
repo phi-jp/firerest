@@ -15,7 +15,7 @@
     return a;
   };
 
-  var qs = {  
+  var qs = {
     parse: function(text, sep, eq, isDecode) {
       text = text || location.search.substr(1);
       sep = sep || '&';
@@ -37,6 +37,23 @@
     },
   };
 
+  var setFromPath = function(obj, key, value) {
+    key.split('/').reduce(function(t, v, i, arr) {
+      if (i === (arr.length-1)) {
+        t[v] = value;
+      }
+      else {
+        if (!t[v]) t[v] = {};
+        return t[v];
+      }
+    }, obj);
+  };
+
+  var getFromPath = function(obj, key) {
+    return key.split('/').reduce(function(t, v) {
+      return t && t[v];
+    }, obj);
+  };
 
   var Child = function(options) {
     this.init(options);
@@ -87,7 +104,7 @@
       }
     },
 
-    ajax: function(options) {
+    _fetch: function(options) {
       var self = this;
       var root = this.root;
       var headers = this.headers();
@@ -144,26 +161,94 @@
 
       return p;
     },
+    _fetchFromLocal: function(options) {
+      var self = this;
+      var api = this.api;
+      var root = this.root;
+      var localData = this.root.localData;
+
+      if(!localData) {
+        return Promise.reject('not found local items');
+      }
+
+      var func = null;
+
+      switch(options.type) {
+        case 'GET':
+          func = function(resolve) {
+            var data = getFromPath(localData, api);
+            resolve(data);
+          };
+          break;
+        case 'PUT':
+          func = function(resolve) {
+            var data = getFromPath(localData, api);
+            extend(r.data, options.data);
+            resolve(data);
+          };
+          break;
+        case 'POST':
+          func = function(resolve) {
+            id = options.data.id;
+            setFromPath(localData, api+'/'+id, options.data);
+            resolve(options.data);
+          };
+          break;
+        case 'DELETE':
+          func = function(resolve) {
+            var pathes = api.split('/');
+            var key = pathes.pop();
+            var path = pathes.join('/');
+            var obj = getFromPath(localData, path);
+
+            delete obj[key];
+
+            resolve(null);
+          };
+          break;
+      }
+
+      var p = new Promise(func);
+
+      p.then(function(res) {
+        root.fire('success', res);
+        return res;
+      });
+      p.catch(function(res) {
+        root.fire('fail', res);
+        return res;
+      });
+      p.then(function(res) {
+        root.fire('always', res)
+        if (root.debug) {
+          console.log(options.type, self.api, res);
+        }
+        return res;
+      });
+
+      return p;
+    },
+
     get: function(data) {
-      return this.ajax({
+      return this.fetch({
         type: 'GET',
         data: data,
       });
     },
     put: function(data) {
-      return this.ajax({
+      return this.fetch({
         type: 'PUT',
         data: data,
       });
     },
     post: function(data) {
-      return this.ajax({
+      return this.fetch({
         type: 'POST',
         data: data,
       });
     },
     del: function(data) {
-      return this.ajax({
+      return this.fetch({
         type: 'DELETE',
         data: data,
       });
@@ -173,7 +258,6 @@
       var child = new Child({
         api: this.api + '/' + api,
       });
-
       child.root = this.root;
       child.parent = this;
 
@@ -183,9 +267,21 @@
     log: function() {
       console.log(this.api);
     },
+
+    migrate: function(data) {
+      var key = this.api;
+      setFromPath(this.root.localData, key, data);
+      return this;
+    },
+
+    fetch: function(options) {
+      if(this.root.local) {
+        return this._fetchFromLocal(options);
+      }else{
+        return this._fetch(options);
+      }
+    }
   };
-
-
 
   /*
    * Firerest
@@ -203,6 +299,8 @@
     this.cacheKey = options.cacheKey;
     this.tokenKey = options.tokenKey;
     this.debug = options.debug;
+    this.local = options.local;
+    this.localData = {};
     this._listeners = [];
 
     this._sync();

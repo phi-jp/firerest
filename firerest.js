@@ -114,7 +114,7 @@
 
       if (options.type === 'GET') {
         if (options.data) {
-          query = qs.stringify(options.data);
+          query = qs.stringify(options.data, null, null, true);
           api += '?';
         }
       }

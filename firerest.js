@@ -128,6 +128,9 @@
         headers: headers,
         body: data,
       }).then(function(res) {
+        // fire always
+        root.fire('always', res);
+
         // refs
         // - https://www.tjvantoll.com/2015/09/13/fetch-and-errors/
         // - http://blog.mudatobunka.org/entry/2016/04/26/092518
@@ -141,21 +144,16 @@
           return res.json();
         }
       });
-
       p.then(function(res) {
+        if (root.debug) {
+          console.log(options.type, api, res);
+        }
+
         root.fire('success', res);
         return res;
       });
       p.catch(function(res) {
         root.fire('fail', res);
-        return res;
-      });
-      p.then(function(res) {
-        if (root.debug) {
-          console.log(options.type, api, res);
-        }
-        root.fire('always', res);
-
         return res;
       });
 

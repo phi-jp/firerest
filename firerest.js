@@ -131,17 +131,13 @@
         // fire always
         root.fire('always', res);
 
-        // refs
-        // - https://www.tjvantoll.com/2015/09/13/fetch-and-errors/
-        // - http://blog.mudatobunka.org/entry/2016/04/26/092518
+        var json = res.json();
         if (!res.ok) {
-          throw new Error(res.statusText);
-          // return res.json().then(function(err) {
-          //   throw Error(err);
-          // });
+          // http://stackoverflow.com/questions/29473426/fetch-reject-promise-with-json-error-object
+          return json.then(Promise.reject.bind(Promise));
         }
         else {
-          return res.json();
+          return json;
         }
       });
       p.then(function(res) {

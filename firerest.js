@@ -126,7 +126,7 @@
       var p = fetch(api + query, {
         method: options.type,
         headers: headers,
-        body: data,
+        body: data || undefined,
       }).then(function(res) {
         // fire always
         root.fire('always', res);

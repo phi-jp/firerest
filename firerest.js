@@ -277,6 +277,69 @@
     }
   };
 
+
+  /*
+   * Auth
+   */
+  var Auth = function(firerest) {
+    this.firerest = firerest;
+    this._token = null;
+    this._user = null;
+  };
+
+  Object.defineProperty(Auth.prototype, 'token', {
+    set: function(v) {
+      this._token = v;
+      localStorage.setItem(this.firerest.cacheKey + '.token', this._token);
+      this.firerest.headers(this.firerest.tokenKey, this._token);
+    },
+    get: function() {
+      return this._token;
+    },
+  });
+
+  Object.defineProperty(Auth.prototype, 'user', {
+    set: function(v) {
+      this._user = v;
+      localStorage.setItem(this.firerest.cacheKey + '.user', JSON.stringify(this._user));
+    },
+    get: function() {
+      return this._user;
+    },
+  });
+
+  Auth.prototype.login = function(token, user) {
+    this.token = token;
+    this.user = user;
+  };
+
+  Auth.prototype.logout = function() {
+    this._token = null;
+    this._user = null;
+    localStorage.removeItem(this.firerest.cacheKey + '.token');
+    localStorage.removeItem(this.firerest.cacheKey + '.user');
+    this.firerest.headers(this.firerest.tokenKey, undefined);
+  };
+
+  Auth.prototype.isLogin = function() {
+    return !!this._token;
+  };
+
+  Auth.prototype._sync = function() {
+    var token = localStorage.getItem(this.firerest.cacheKey + '.token');
+    var user = localStorage.getItem(this.firerest.cacheKey + '.user');
+
+    if (token) {
+      this.token = token;
+    }
+    if (user) {
+      this.user = JSON.parse(user);
+    }
+
+    return this;
+  };
+
+
   /*
    * Firerest
    */
@@ -297,38 +360,8 @@
     this.localData = {};
     this._listeners = [];
 
-    this._sync();
-  };
-
-  Firerest.prototype.token = function(v) {
-    if (v) {
-      this._token = v;
-      this.headers(this.tokenKey, this._token);
-      localStorage.setItem(this.cacheKey, v);
-      return this;
-    }
-    else {
-      return this._token;
-    }
-  };
-  Firerest.prototype.isLogin = function() {
-    return !!this._token;
-  };
-  Firerest.prototype.logout = function() {
-    localStorage.removeItem(this.cacheKey);
-    this._token = null;
-  };
-  Firerest.prototype._sync = function() {
-    var token = localStorage.getItem(this.cacheKey);
-    if (token) {
-      this.token(token);
-      return true;
-    }
-    else {
-      return false;
-    }
-
-    return this;
+    this.auth = new Auth(this);
+    this.auth._sync();
   };
 
   // events

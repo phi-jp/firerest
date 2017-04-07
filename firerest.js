@@ -119,8 +119,13 @@
         }
       }
       else {
-        headers['Content-Type'] = 'application/json; charset=utf-8';
-        data = JSON.stringify( extend(this.data(), options.data) );
+        if (options.data && options.data.constructor !== FormData) {
+          headers['Content-Type'] = 'application/json; charset=utf-8';
+          data = JSON.stringify( extend(this.data(), options.data) );
+        }
+        else {
+          data = options.data;
+        }
       }
 
       var p = fetch(api + query, {

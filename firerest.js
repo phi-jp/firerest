@@ -1,10 +1,14 @@
 ;(function(exports) {
 
-  var fetch = (typeof module === "object" && typeof module.exports === "object" ) ? require('node-fetch') : window.fetch;
+  var isNode = (typeof module === "object" && typeof module.exports === "object" );
 
-  if (typeof localStorage === "undefined" || localStorage === null) {
-    var LocalStorage = require('node-localstorage').LocalStorage;
-    localStorage = new LocalStorage('./firerest');
+  if (isNode) {
+    fetch = require('node-fetch');
+    localStorage = {
+      setItem: function() {},
+      getItem: function() {},
+      removeItem: function() {},
+    };
   }
 
   var extend = function(a, b) {

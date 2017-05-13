@@ -43,6 +43,10 @@ app
       debug: true,
     });
 
+    ref.on('always', function(req, res) {
+      console.log('fire always');
+    });
+
     riot.route(function(tagName, id) {
       tagName = tagName || 'home';
 

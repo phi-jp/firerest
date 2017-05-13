@@ -138,7 +138,7 @@
         body: data || undefined,
       }).then(function(res) {
         // fire always
-        root.fire('always', res);
+        root.fire('always', self, res);
 
         var json = res.json();
         if (!res.ok) {
@@ -154,11 +154,11 @@
           console.log(options.type, api, res);
         }
 
-        root.fire('success', res);
+        root.fire('success', self, res);
         return res;
       });
       p.catch(function(res) {
-        root.fire('fail', res);
+        root.fire('fail', self, res);
         return res;
       });
 
@@ -214,16 +214,16 @@
       var p = new Promise(func);
 
       p.then(function(res) {
-        root.fire('always', res)
+        root.fire('always', self, res)
         if (root.debug) {
           console.log(options.type, self.api, res);
         }
 
-        root.fire('success', res);
+        root.fire('success', self, res);
         return res;
       });
       p.catch(function(res) {
-        root.fire('fail', res);
+        root.fire('fail', self, res);
         return res;
       });
 
@@ -381,12 +381,12 @@
 
     return this;
   };
-  Firerest.prototype.fire = function(type, options) {
+  Firerest.prototype.fire = function(type, req, res) {
     if (!this._listeners[type]) return ;
 
     this._listeners[type].forEach(function(func) {
-      func.call(this, options);
-    });
+      func.call(this, req, res);
+    }.bind(this));
 
     return this;
   };

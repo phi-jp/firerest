@@ -66,6 +66,8 @@
   Child.prototype = {
     init: function(options) {
       this.api = options.api;
+      this.local = options.local || false;
+      this.debug = options.debug || false;
       this._data = {};
       this._headers = {};
     },
@@ -150,7 +152,7 @@
         }
       });
       p.then(function(res) {
-        if (root.debug) {
+        if (self.debug) {
           console.log(options.type, api, res);
         }
 
@@ -214,8 +216,8 @@
       var p = new Promise(func);
 
       p.then(function(res) {
-        root.fire('always', self, res)
-        if (root.debug) {
+        root.fire('always', self, res);
+        if (self.debug) {
           console.log(options.type, self.api, res);
         }
 
@@ -261,6 +263,8 @@
 
       var child = new Child({
         api: this.api + '/' + api,
+        local: this.local,
+        debug: this.debug,
       });
       child.root = this.root;
       child.parent = this;
@@ -279,11 +283,15 @@
     },
 
     fetch: function(options) {
-      if(this.root.local) {
+      this.root.fire('prefetch', this);
+
+      if(this.local) {
         return this._fetchFromLocal(options);
       }else{
         return this._fetch(options);
       }
+
+      this.root.fire('postfetch', this);
     }
   };
 
@@ -378,6 +386,25 @@
   Firerest.prototype.on = function(type, func) {
     if (!this._listeners[type]) this._listeners[type] = [];
     this._listeners[type].push(func);
+
+    return this;
+  };
+  Firerest.prototype.off = function(type, func) {
+    if (!this._listeners[type]) this._listeners[type] = [];
+
+    var i = this._listeners[type].indexOf(func);
+    if (i !== -1) {
+      this._listeners[type].splice(i, 1);
+    }
+
+    return this;
+  };
+  Firerest.prototype.once = function(type, func) {
+    var temp = function() {
+      func.apply(this, arguments);
+      this.off(type, temp);
+    }.bind(this);
+    this.on(type, temp);
 
     return this;
   };

@@ -285,13 +285,17 @@
     fetch: function(options) {
       this.root.fire('prefetch', this);
 
-      if(this.local) {
-        return this._fetchFromLocal(options);
-      }else{
-        return this._fetch(options);
+      var p = null;
+
+      if (this.local) {
+        p = this._fetchFromLocal(options);
+      } else {
+        p = this._fetch(options);
       }
 
       this.root.fire('postfetch', this);
+      
+      return p;
     }
   };
 

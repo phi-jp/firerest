@@ -214,18 +214,16 @@
       var p = new Promise(func);
 
       p.then(function(res) {
+        root.fire('always', res)
+        if (root.debug) {
+          console.log(options.type, self.api, res);
+        }
+
         root.fire('success', res);
         return res;
       });
       p.catch(function(res) {
         root.fire('fail', res);
-        return res;
-      });
-      p.then(function(res) {
-        root.fire('always', res)
-        if (root.debug) {
-          console.log(options.type, self.api, res);
-        }
         return res;
       });
 
@@ -258,6 +256,9 @@
     },
 
     child: function(api) {
+      // normalize
+      api = api.replace(/^\//, '').replace(/\/$/, '');
+
       var child = new Child({
         api: this.api + '/' + api,
       });

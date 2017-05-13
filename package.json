@@ -1,6 +1,6 @@
 {
   "name": "firerest",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "ajax library for rest like firebase",
   "main": "firerest.js",
   "scripts": {

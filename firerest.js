@@ -259,7 +259,7 @@
 
     child: function(api) {
       // normalize
-      api = api.replace(/^\//, '').replace(/\/$/, '');
+      api = (api+'').replace(/^\//, '').replace(/\/$/, '');
 
       var child = new Child({
         api: this.api + '/' + api,

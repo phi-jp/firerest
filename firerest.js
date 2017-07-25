@@ -120,7 +120,13 @@
 
       if (options.type === 'GET') {
         if (options.data) {
-          query = qs.stringify(options.data, null, null, true);
+          // undefined は除外する
+          var temp = {};
+          for (var key in options.data) {
+            var v = options.data[key];
+            if (v !== undefined) temp[key] = v;
+          }
+          query = qs.stringify(temp, null, null, true);
           api += '?';
         }
       }

@@ -91,6 +91,9 @@ home
       self.update();
     });
 
+    // get時に object が null であっても問題がない。
+    ref.child('posts').get({hoge: null});
+
 post
   h2
     a(href='#home') <

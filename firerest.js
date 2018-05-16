@@ -57,6 +57,9 @@
             params.push([key + '[' + kk + ']', vv]);
           })
         }
+        else if (v === null) {
+          params.push([key, "null"]);
+        }
       });
 
       return params.map(function(p){

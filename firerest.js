@@ -51,6 +51,9 @@
             params.push([key+'[]', vv]);
           });
         }
+        else if (v === null) {
+          params.push([key, "null"]);
+        }
         else if (typeof v === 'object') {
           Object.keys(v).forEach(function(kk) {
             var vv = v[kk];

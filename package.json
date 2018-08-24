@@ -21,6 +21,6 @@
   },
   "homepage": "https://github.com/phi-jp/firerest#readme",
   "dependencies": {
-    "node-fetch": "^1.6.3"
+    "node-fetch": "^1.6.4"
   }
 }

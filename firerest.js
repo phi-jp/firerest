@@ -43,7 +43,10 @@
         if (typeof v === 'string') {
           params.push([key, v]);
         }
-        if (typeof v === 'number') {
+        else if (typeof v === 'number') {
+          params.push([key, v]);
+        }
+        else if (typeof v === 'boolean') {
           params.push([key, v]);
         }
         else if (v instanceof Array) {

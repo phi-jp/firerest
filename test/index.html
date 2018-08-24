@@ -94,6 +94,9 @@ home
     // get時に object が null であっても問題がない。
     ref.child('posts').get({hoge: null});
 
+    // get時に object が boolean で取得できるかテスト (Network　で確認)
+    ref.child('posts').get({hoge: true});
+
 post
   h2
     a(href='#home') <

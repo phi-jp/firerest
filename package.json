@@ -1,6 +1,6 @@
 {
   "name": "firerest",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "ajax library for rest like firebase",
   "main": "firerest.js",
   "scripts": {
@@ -21,6 +21,6 @@
   },
   "homepage": "https://github.com/phi-jp/firerest#readme",
   "dependencies": {
-    "node-fetch": "^1.6.4"
+    "node-fetch": "^2.2.0"
   }
 }

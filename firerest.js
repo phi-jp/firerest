@@ -149,24 +149,19 @@
 
       if (options.type === 'GET') {
         if (options.data) {
-          var temp = {};
-          for (var key in options.data) {
-            var v = options.data[key];
-            if (v !== undefined) temp[key] = v;
-          }
           var temp = extend(this.data(), options.data);
           query = qs.stringify(temp, null, null, true);
           api += '?';
         }
       }
       else {
-        var temp = extend(this.data(), options.data);
         if (options.data && options.data.constructor !== global.FormData) {
+          var temp = extend(this.data(), options.data);
           headers['Content-Type'] = 'application/json; charset=utf-8';
           data = JSON.stringify( temp );
         }
         else {
-          data = temp;
+          data = options.data;	
         }
       }
 

@@ -314,8 +314,8 @@
       return this;
     },
 
-    fetch: function(options) {
-      this.root.fire('prefetch', this);
+    fetch: async function(options) {
+      await this.root.fire('prefetch', this);
 
       var p = null;
 
@@ -325,7 +325,7 @@
         p = this._fetch(options);
       }
 
-      this.root.fire('postfetch', this);
+      await this.root.fire('postfetch', this);
       
       return p;
     }
@@ -444,12 +444,19 @@
 
     return this;
   };
-  Firerest.prototype.fire = function(type, req, res) {
+  Firerest.prototype.fire = async function(type, req, res) {
     if (!this._listeners[type]) return ;
 
-    this._listeners[type].forEach(function(func) {
-      func.call(this, req, res);
+    // イベントの実行結果を取得
+    var results = this._listeners[type].map(function(func) {
+      return func.call(this, req, res);
     }.bind(this));
+
+    // Promise だった場合すべて終わるまで待つ
+    var promises = results.filter(r => r && r.constructor === Promise);
+    if (promises.length) {
+      await Promise.all(promises);
+    }
 
     return this;
   };

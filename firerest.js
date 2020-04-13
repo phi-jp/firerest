@@ -9,13 +9,6 @@
       removeItem: function() {},
     };
   }
-  else if (navigator.cookieEnabled === false) {
-    localStorage = {
-      setItem: function() {},
-      getItem: function() {},
-      removeItem: function() {},
-    };
-  }
 
   var extend = function(a, b) {
     for (var key in b) {
@@ -422,7 +415,10 @@
     this._listeners = [];
 
     this.auth = new Auth(this);
-    this.auth._sync();
+
+    if (isNode || navigator.cookieEnabled === true) {
+      this.auth._sync();
+    }
   };
 
   // events

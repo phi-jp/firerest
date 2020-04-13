@@ -9,6 +9,13 @@
       removeItem: function() {},
     };
   }
+  else if (navigator.cookieEnabled === false) {
+    localStorage = {
+      setItem: function() {},
+      getItem: function() {},
+      removeItem: function() {},
+    };
+  }
 
   var extend = function(a, b) {
     for (var key in b) {

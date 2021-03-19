@@ -325,7 +325,9 @@
         p = this._fetch(options);
       }
 
-      await this.root.fire('postfetch', this);
+      p.then((res) => {
+        this.root.fire('postfetch', this, res);
+      });
       
       return p;
     }

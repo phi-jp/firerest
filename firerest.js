@@ -139,7 +139,8 @@
       }
     },
 
-    _fetch: function(options) {
+
+    _fetch: async function(options) {
       var self = this;
       var root = this.root;
       var headers = this.headers();
@@ -165,38 +166,29 @@
         }
       }
 
+      try {
+        var apiResponse = await fetch(api + query, {
+          method: options.type,
+          headers: headers,
+          body: data || undefined,
+        });
 
-      var p = fetch(api + query, {
-        method: options.type,
-        headers: headers,
-        body: data || undefined,
-      }).then(function(res) {
-        // fire always
-        root.fire('always', self, res);
+        var res = await apiResponse.json();
+        if (!apiResponse.ok) {
+          throw res;
+        }
 
-        var json = res.json();
-        if (!res.ok) {
-          // http://stackoverflow.com/questions/29473426/fetch-reject-promise-with-json-error-object
-          return json.then(Promise.reject.bind(Promise));
-        }
-        else {
-          return json;
-        }
-      });
-      p.then(function(res) {
         if (self.debug) {
           console.log(options.type, api, res);
         }
 
         root.fire('success', self, res);
         return res;
-      });
-      p.catch(function(res) {
-        root.fire('fail', self, res);
-        return res;
-      });
-
-      return p;
+      }
+      catch (e) {
+        root.fire('fail', self, e);
+        throw e;
+      }
     },
     _fetchFromLocal: function(options) {
       var self = this;
@@ -315,7 +307,12 @@
     },
 
     fetch: async function(options) {
-      await this.root.fire('prefetch', this);
+      try {
+        await this.root.fire('prefetch', this);
+      }
+      catch (e) {
+        console.error('--- prefetch error ---', e);
+      }
 
       var p = null;
 
@@ -326,7 +323,9 @@
       }
 
       p.then((res) => {
-        this.root.fire('postfetch', this, res);
+        return this.root.fire('postfetch', this, res);
+      }).catch(e => {
+        console.error('--- postfetch error ---', e);
       });
       
       return p;

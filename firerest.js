@@ -172,6 +172,8 @@
           headers: headers,
           body: data || undefined,
         });
+        // fire always
+        root.fire('always', self, apiResponse);
 
         var res = await apiResponse.json();
         if (!apiResponse.ok) {

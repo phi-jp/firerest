@@ -325,9 +325,10 @@
       }
 
       p.then((res) => {
-        return this.root.fire('postfetch', this, res);
-      }).catch(e => {
-        console.error('--- postfetch error ---', e);
+        this.root.fire('postfetch', this, res);
+      }).catch(() => {
+        // UnhandledRejection 回避
+        // 呼び出し側でハンドリングする為何もしない
       });
       
       return p;

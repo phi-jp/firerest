@@ -139,7 +139,8 @@
       }
     },
 
-    _fetch: function(options) {
+
+    _fetch: async function(options) {
       var self = this;
       var root = this.root;
       var headers = this.headers();
@@ -165,38 +166,31 @@
         }
       }
 
-
-      var p = fetch(api + query, {
-        method: options.type,
-        headers: headers,
-        body: data || undefined,
-      }).then(function(res) {
+      try {
+        var apiResponse = await fetch(api + query, {
+          method: options.type,
+          headers: headers,
+          body: data || undefined,
+        });
         // fire always
-        root.fire('always', self, res);
+        root.fire('always', self, apiResponse);
 
-        var json = res.json();
-        if (!res.ok) {
-          // http://stackoverflow.com/questions/29473426/fetch-reject-promise-with-json-error-object
-          return json.then(Promise.reject.bind(Promise));
+        var res = await apiResponse.json();
+        if (!apiResponse.ok) {
+          throw res;
         }
-        else {
-          return json;
-        }
-      });
-      p.then(function(res) {
+
         if (self.debug) {
           console.log(options.type, api, res);
         }
 
         root.fire('success', self, res);
         return res;
-      });
-      p.catch(function(res) {
-        root.fire('fail', self, res);
-        return res;
-      });
-
-      return p;
+      }
+      catch (e) {
+        root.fire('fail', self, e);
+        throw e;
+      }
     },
     _fetchFromLocal: function(options) {
       var self = this;
@@ -315,7 +309,12 @@
     },
 
     fetch: async function(options) {
-      await this.root.fire('prefetch', this);
+      try {
+        await this.root.fire('prefetch', this);
+      }
+      catch (e) {
+        console.error('--- prefetch error ---', e);
+      }
 
       var p = null;
 
@@ -327,6 +326,9 @@
 
       p.then((res) => {
         this.root.fire('postfetch', this, res);
+      }).catch(() => {
+        // UnhandledRejection 回避
+        // 呼び出し側でハンドリングする為何もしない
       });
       
       return p;

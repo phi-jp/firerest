@@ -148,7 +148,7 @@
       var query = '';
       var data = null;
 
-      if (options.type === 'GET') {
+      if (options.type === 'GET' || options.type === 'DELETE') {
         if (options.data) {
           var temp = extend(this.data(), options.data);
           query = qs.stringify(temp, null, null, true);

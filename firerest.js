@@ -326,68 +326,6 @@ Child.prototype = {
 
 
 /*
-  * Auth
-  */
-var Auth = function(firerest) {
-  this.firerest = firerest;
-  this._token = null;
-  this._user = null;
-};
-
-Object.defineProperty(Auth.prototype, 'token', {
-  set: function(v) {
-    this._token = v;
-    localStorage.setItem(this.firerest.cacheKey + '.token', this._token);
-    this.firerest.headers(this.firerest.tokenKey, this._token);
-  },
-  get: function() {
-    return this._token;
-  },
-});
-
-Object.defineProperty(Auth.prototype, 'user', {
-  set: function(v) {
-    this._user = v;
-    localStorage.setItem(this.firerest.cacheKey + '.user', JSON.stringify(this._user));
-  },
-  get: function() {
-    return this._user;
-  },
-});
-
-Auth.prototype.login = function(token, user) {
-  this.token = token;
-  this.user = user;
-};
-
-Auth.prototype.logout = function() {
-  this._token = null;
-  this._user = null;
-  localStorage.removeItem(this.firerest.cacheKey + '.token');
-  localStorage.removeItem(this.firerest.cacheKey + '.user');
-  this.firerest.headers(this.firerest.tokenKey, undefined);
-};
-
-Auth.prototype.isLogin = function() {
-  return !!this._token;
-};
-
-Auth.prototype._sync = function() {
-  var token = localStorage.getItem(this.firerest.cacheKey + '.token');
-  var user = localStorage.getItem(this.firerest.cacheKey + '.user');
-
-  if (token) {
-    this.token = token;
-  }
-  if (user) {
-    this.user = JSON.parse(user);
-  }
-
-  return this;
-};
-
-
-/*
   * Firerest
   */
 var Firerest = function(options) {
@@ -406,9 +344,6 @@ Firerest.prototype.init = function(options) {
   this.local = options.local;
   this.localData = {};
   this._listeners = [];
-
-  this.auth = new Auth(this);
-  this.auth._sync();
 };
 
 // events
@@ -457,25 +392,3 @@ Firerest.prototype.fire = async function(type, req, res) {
 export default function(options) {
   return new Firerest(options);
 };
-
-// exports.create = function(options) {
-//   return new Firerest(options);
-// };
-
-// // test
-// ;(function() {
-//   return ;
-//   var ref = new Firerest({
-//     api: 'http://jsonplaceholder.typicode.com',
-//     cacheKey: 'hoge.foo.bar', // localstorage に保存するためのキー
-//     tokenKey: 'abcdefg', // header に付与して送るキー
-//     debug: true,
-//   });
-//   ref.log();
-//   ref.child('posts').log();
-//   ref.child('posts').get().done();
-//   ref.child('posts').child(10).get().done();
-//   ref.child('posts').child(10).child('comments').get().done();
-// })();
-
-

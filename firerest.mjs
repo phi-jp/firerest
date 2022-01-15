@@ -389,6 +389,9 @@ Firerest.prototype.fire = async function(type, req, res) {
   return this;
 };
 
-export default function(options) {
-  return new Firerest(options);
+export default {
+  create: function(options) {
+    return new Firerest(options);
+  }  
 };
+

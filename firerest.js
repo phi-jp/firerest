@@ -167,7 +167,8 @@
       }
 
       try {
-        var apiResponse = await fetch(api + query, {
+        let native_fetch = root._nativeFetch;
+        var apiResponse = await native_fetch(api + query, {
           method: options.type,
           headers: headers,
           body: data || undefined,
@@ -417,6 +418,7 @@
     this.local = options.local;
     this.localData = {};
     this._listeners = [];
+    this._nativeFetch = fetch;
 
     this.auth = new Auth(this);
     this.auth._sync();

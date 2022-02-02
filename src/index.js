@@ -22,7 +22,7 @@ class ChildNode extends AsyncEventEmitter {
     return child;
   }
 
-  async fetch({type, data}) {
+  async fetch({type, data={}}) {
     let path = this.path;
     type = type.toUpperCase();
 

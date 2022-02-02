@@ -5,6 +5,8 @@
   "main": "firerest.js",
   "module": "firerest.mjs",
   "scripts": {
+    "dev": "parcel watch src/index.js --no-hmr --global firerest",
+    "build": "parcel build src/index.js --global firerest",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,5 +25,10 @@
   "homepage": "https://github.com/phi-jp/firerest#readme",
   "dependencies": {
     "node-fetch": "2.6.1"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "parcel-bundler": "^1.12.5"
   }
 }

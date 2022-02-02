@@ -2,8 +2,7 @@
   "name": "firerest",
   "version": "0.1.9",
   "description": "ajax library for rest like firebase",
-  "main": "firerest.js",
-  "module": "firerest.mjs",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "parcel watch src/index.js --no-hmr --global firerest",
     "build": "parcel build src/index.js --global firerest",

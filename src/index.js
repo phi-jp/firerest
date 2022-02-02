@@ -1,5 +1,4 @@
-import _path from 'path';
-import AsyncEventEmitter from './async-event-emitter';
+import AsyncEventEmitter from './async-event-emitter'
 
 class ChildNode extends AsyncEventEmitter {
   constructor({parent, root, path, headers={}}) {
@@ -41,6 +40,7 @@ class ChildNode extends AsyncEventEmitter {
     let headers = this.headers();
     let query = '';
     let body = null;
+    let temp_fetch = root._fetch;
 
     if (type === 'GET' || type === 'DELETE') {
       let params = new URLSearchParams();
@@ -68,7 +68,7 @@ class ChildNode extends AsyncEventEmitter {
       }
     }
     else {
-      if (data.constructor !== global.FormData) {
+      if (data.constructor !== globalThis.FormData) {
         headers['Content-Type'] = 'application/json; charset=utf-8';
         body = JSON.stringify( data );
       }
@@ -79,9 +79,8 @@ class ChildNode extends AsyncEventEmitter {
     }
 
     try {
-      let fetch = root._fetch;
 
-      let res = await fetch(path + query, {
+      let res = await temp_fetch(path + query, {
         method: type,
         headers,
         body,
@@ -168,12 +167,15 @@ class ChildNode extends AsyncEventEmitter {
     let pathes = [];
     let node = this;
     do {
-      pathes.unshift(node._path);
+      if (node._path) {
+        pathes.unshift(node._path);
+      }
     } while(node = node.parent);
 
-    let path = _path.join(...pathes);
+    // let path = _path.join(...pathes);
+    let path = pathes.join('/');
 
-    return this.root._baseURL + '/' + path;
+    return (this.root._baseURL + '/' + path);
   }
 
   headers(...args) {
@@ -207,7 +209,7 @@ class ChildNode extends AsyncEventEmitter {
 }
 
 class RootNode extends ChildNode {
-  constructor({baseURL, debug=false, fetch=global.fetch}) {
+  constructor({baseURL, debug=false, fetch=globalThis.fetch}) {
     super({
       parent: null,
       root: null,
@@ -223,7 +225,7 @@ class RootNode extends ChildNode {
 
   // fetch 関数をセット
   setFetch(fetch) {
-    this._fetch;
+    this._fetch = fetch;
   }
 }
 
@@ -239,4 +241,4 @@ export default firerest;
 
 // for commonjs(node)
 // こう書くと default を省ける
-module.exports = exports["default"];
+// module.exports = exports["default"];

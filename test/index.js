@@ -1,4 +1,4 @@
-let firerest = require('../dist/index');
+let firerest = require('../dist/firerest.umd');
 let fetch = require('node-fetch');
 
 global.fetch = fetch;

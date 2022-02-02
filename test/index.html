@@ -1,0 +1,51 @@
+<script src='../dist/index.js'></script>
+<script>
+
+let api = firerest.create({
+  baseURL: 'https://jsonplaceholder.typicode.com/',
+  debug: true,
+});
+
+let ref = api.child('posts').child('2');
+
+console.log(ref.path);
+
+api.on('prefetch', ({path, type}) => {
+  // debugger;
+});
+
+api.on('postfetch', (res) => {
+  // debugger;
+  // console.log(res);
+});
+
+api.on('fail', (params) => {
+  console.log(params);
+});
+
+api.headers('****hoge****', 100);
+
+ref.get({
+  sort: 'hoge',
+  tag_ids: ['1', '2'],
+  temp: {
+    hoge: 100,
+    foo: 200,
+  }
+}).then(res => {
+  console.log(res);
+});
+
+api.child('posts').post({
+  title: 'abc',
+});
+
+ref.put({
+  title: 'abc',
+});
+
+ref.del({
+  title: 'abc',
+});
+
+</script>

@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "events": "^3.3.0",
+    "path-browserify": "^1.0.1",
     "vite": "^2.7.2"
   }
 }

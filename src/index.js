@@ -1,3 +1,4 @@
+import _path from 'path-browserify'
 import AsyncEventEmitter from './async-event-emitter'
 
 class ChildNode extends AsyncEventEmitter {
@@ -22,13 +23,16 @@ class ChildNode extends AsyncEventEmitter {
   }
 
   async fetch({type, data={}}) {
+    let root = this.root;
     let path = this.path;
+    let endpoint = root._baseURL + '/' + path;
     type = type.toUpperCase();
 
     try {
       await this.root.emitAsync('prefetch', {
         self: this,
         path,
+        endpoint,
         type,
       });
     }
@@ -36,7 +40,6 @@ class ChildNode extends AsyncEventEmitter {
       console.error('--- prefetch error ---', e);
     }
 
-    let root = this.root;
     let headers = this.headers();
     let query = '';
     let body = null;
@@ -80,7 +83,7 @@ class ChildNode extends AsyncEventEmitter {
 
     try {
 
-      let res = await temp_fetch(path + query, {
+      let res = await temp_fetch(endpoint + query, {
         method: type,
         headers,
         body,
@@ -96,7 +99,7 @@ class ChildNode extends AsyncEventEmitter {
       }
 
       if (root._debug) {
-        console.groupCollapsed('## firerest: %s', path);
+        console.groupCollapsed('## firerest: %s', endpoint);
         console.log('payload:', data);
         console.log('response:', result);
         console.groupEnd();
@@ -105,6 +108,7 @@ class ChildNode extends AsyncEventEmitter {
       await this.root.emitAsync('postfetch', {
         self: this,
         path,
+        endpoint,
         type,
         res,
         status: res.status,
@@ -117,6 +121,7 @@ class ChildNode extends AsyncEventEmitter {
       await this.root.emitAsync('fail', {
         self: this,
         path,
+        endpoint,
         type,
         res: error.res,
         status: error.res.status,
@@ -162,7 +167,10 @@ class ChildNode extends AsyncEventEmitter {
   }
 
   get path() {
-    if (this.isRoot()) return this._baseURL;
+    if (this.isRoot()) {
+      debugger;
+      return this._baseURL;
+    }
 
     let pathes = [];
     let node = this;
@@ -172,10 +180,9 @@ class ChildNode extends AsyncEventEmitter {
       }
     } while(node = node.parent);
 
-    // let path = _path.join(...pathes);
-    let path = pathes.join('/');
+    let path = _path.join(...pathes);
 
-    return (this.root._baseURL + '/' + path);
+    return _path.normalize(path);
   }
 
   headers(...args) {

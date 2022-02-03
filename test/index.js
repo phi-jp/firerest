@@ -22,3 +22,8 @@ ref.get({
 }).then(res => {
   console.log(res);
 });
+
+
+api.child('posts').child('2').child('../').child('1').get().then(res => {
+  console.log(res);
+});

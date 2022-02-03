@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/phi-jp/meltline@v0.1.13/meltline.css">
   </head>
   <body>
-    <main class='p32 container'>
+    <main class='p32 container-960'>
       <h1 class='mb32'>firerest test</h1>
 
       <div class='mb16'>
@@ -75,6 +75,11 @@ window.onload = async () => {
       description: 'delete test',
     });
   };
+
+  
+
+  // ../ も使える
+  let ref = api.child('posts').child('2').child('../').child('1');
 };
 
 </script>

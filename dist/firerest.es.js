@@ -943,7 +943,6 @@ class ChildNode extends AsyncEventEmitter {
   }
   get path() {
     if (this.isRoot()) {
-      debugger;
       return this._baseURL;
     }
     let pathes = [];

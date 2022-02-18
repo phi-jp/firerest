@@ -92,10 +92,12 @@ class ChildNode extends AsyncEventEmitter {
       let result = await res.json();
 
       if (!res.ok) {
-        throw {
-          res,
-          result,
-        };
+        let err = new Error(result.message);
+        err.status = res.status;
+        err.res = res;
+        err.result = result;
+
+        throw err;
       }
 
       if (root._debug) {
@@ -117,16 +119,18 @@ class ChildNode extends AsyncEventEmitter {
 
       return result;
 
-    } catch(error) {
+    } catch(err) {
       await this.root.emitAsync('fail', {
         self: this,
         path,
         endpoint,
         type,
-        res: error.res,
-        status: error.res.status,
-        result: error.result,
+        res: err.res,
+        status: err.res.status,
+        result: err.result,
       });
+
+      throw err;
     }
   }
 

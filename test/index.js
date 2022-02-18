@@ -1,22 +1,29 @@
-var Firerest = require('../firerest');
+let firerest = require('../dist/firerest.umd');
+let fetch = require('node-fetch');
 
-var ref = Firerest.create({
-  api: 'http://jsonplaceholder.typicode.com',
-  cacheKey: '_token',
-  tokenKey: 'Token',
+global.fetch = fetch;
+
+let api = firerest.create({
+  baseURL: 'https://jsonplaceholder.typicode.com/',
+  fetch: fetch,
   debug: true,
 });
 
-// fetch 前に共通処理を仕込める( Promise にも対応 )
-ref.on('prefetch', () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve();
-      console.log('共通に2秒待ってから表示する')
-    }, 2000);
-  });
+
+let ref = api.child('posts').child(2);
+
+ref.get({
+  sort: 'hoge',
+  tag_ids: ['1', '2'],
+  temp: {
+    hoge: 100,
+    foo: 200,
+  }
+}).then(res => {
+  console.log(res);
 });
 
-ref.child('posts').get().then(function(res) {
-  console.log(res.slice(0, 4));
+
+api.child('posts').child('2').child('../').child('1').get().then(res => {
+  console.log(res);
 });

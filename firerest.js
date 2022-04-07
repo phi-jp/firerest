@@ -175,11 +175,23 @@
         // fire always
         root.fire('always', self, apiResponse);
 
-        var res = await apiResponse.json();
         if (!apiResponse.ok) {
+          try {
+            var res = await apiResponse.json();
+          }
+          catch (e) {
+            // JSON で返ってこなかった場合
+            throw { 
+              nativeError: e,
+              response: apiResponse,
+              status: apiResponse.status,
+              message: apiResponse.statusText,
+             };
+          }
           throw res;
         }
 
+        var res = await apiResponse.json();
         if (self.debug) {
           console.log(options.type, api, res);
         }
@@ -188,6 +200,14 @@
         return res;
       }
       catch (e) {
+        if (!apiResponse) {
+          // 通信エラー
+          e = {
+            nativeError: e,
+            isNetworkError: true,
+            message: 'Failed to fetch'
+          };
+        }
         root.fire('fail', self, e);
         throw e;
       }

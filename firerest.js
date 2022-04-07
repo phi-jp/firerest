@@ -175,7 +175,6 @@
         // fire always
         root.fire('always', self, apiResponse);
 
-        
         if (!apiResponse.ok) {
           try {
             var res = await apiResponse.json();

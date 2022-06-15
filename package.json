@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/phi-jp/firerest#readme",
   "dependencies": {
-    "node-fetch": "2.6.1"
+    "node-fetch": "^2.6.7"
   },
   "devDependencies": {
     "events": "^3.3.0",

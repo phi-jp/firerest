@@ -19,6 +19,14 @@ class RootNode extends ChildNode {
   setFetch(fetch) {
     this._fetch = fetch;
   }
+
+  setNetworkErrorMessage(message) {
+    this._networkErrorMessage = message;
+  }
+
+  getNetworkErrorMessage() {
+    return this._networkErrorMessage || 'Failed to fetch';
+  }
 }
 
 export default RootNode;

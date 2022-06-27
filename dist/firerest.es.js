@@ -824,6 +824,7 @@ class ChildNode extends AsyncEventEmitter {
     return child;
   }
   async fetch({ type, data = {} }) {
+    var _a;
     let root = this.root;
     let path = this.path;
     let endpoint = root._baseURL + "/" + path;
@@ -870,13 +871,23 @@ class ChildNode extends AsyncEventEmitter {
         body = data;
       }
     }
+    let res;
     try {
-      let res = await temp_fetch(endpoint + query, {
+      res = await temp_fetch(endpoint + query, {
         method: type,
         headers,
         body
       });
-      let result = await res.json();
+      let result;
+      try {
+        result = await res.json();
+      } catch (e) {
+        let err = new Error(res.statusText || res.status);
+        err.res = res;
+        err.nativeError = e;
+        err.status = res.status;
+        throw err;
+      }
       if (!res.ok) {
         let err = new Error(result.message);
         err.status = res.status;
@@ -901,14 +912,21 @@ class ChildNode extends AsyncEventEmitter {
       });
       return result;
     } catch (err) {
+      if (!res) {
+        err = Object.assign(new Error(this._root.getNetworkErrorMessage()), {
+          nativeError: err,
+          isNetworkError: true
+        });
+      }
       await this.root.emitAsync("fail", {
         self: this,
         path,
         endpoint,
         type,
         res: err.res,
-        status: err.res.status,
-        result: err.result
+        status: (_a = err.res) == null ? void 0 : _a.status,
+        result: err.result,
+        message: err.message
       });
       throw err;
     }
@@ -991,6 +1009,12 @@ class RootNode extends ChildNode {
   }
   setFetch(fetch) {
     this._fetch = fetch;
+  }
+  setNetworkErrorMessage(message) {
+    this._networkErrorMessage = message;
+  }
+  getNetworkErrorMessage() {
+    return this._networkErrorMessage || "Failed to fetch";
   }
 }
 let firerest = {

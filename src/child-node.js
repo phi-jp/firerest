@@ -81,22 +81,32 @@ class ChildNode extends AsyncEventEmitter {
       }
     }
 
+    let res;
     try {
-
-      let res = await temp_fetch(endpoint + query, {
+      res = await temp_fetch(endpoint + query, {
         method: type,
         headers,
         body,
       });
 
-      let result = await res.json();
+      let result;
+      try {
+        result = await res.json();
+      }
+      catch (e) {
+        // JSON で返ってこなかった場合
+        let err = new Error(res.statusText || res.status);
+        err.res = res;
+        err.nativeError = e;
+        err.status = res.status;
+        throw err;
+      }
 
       if (!res.ok) {
         let err = new Error(result.message);
         err.status = res.status;
         err.res = res;
         err.result = result;
-
         throw err;
       }
 
@@ -119,15 +129,23 @@ class ChildNode extends AsyncEventEmitter {
 
       return result;
 
-    } catch(err) {
+    } catch (err) {
+      if (!res) {
+        // 通信エラー
+        err = Object.assign(new Error(this._root.getNetworkErrorMessage()), {
+          nativeError: err,
+          isNetworkError: true,
+        });
+      }
       await this.root.emitAsync('fail', {
         self: this,
         path,
         endpoint,
         type,
         res: err.res,
-        status: err.res.status,
+        status: err.res?.status,
         result: err.result,
+        message: err.message,
       });
 
       throw err;

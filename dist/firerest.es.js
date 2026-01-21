@@ -949,6 +949,12 @@ class ChildNode extends AsyncEventEmitter {
       data
     });
   }
+  patch(data) {
+    return this.fetch({
+      type: "PATCH",
+      data
+    });
+  }
   del(data) {
     return this.fetch({
       type: "DELETE",

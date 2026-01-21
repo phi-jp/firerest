@@ -2,7 +2,7 @@ import _path from 'path-browserify'
 import AsyncEventEmitter from './async-event-emitter'
 
 class ChildNode extends AsyncEventEmitter {
-  constructor({parent, root, path, headers={}}) {
+  constructor({ parent, root, path, headers = {} }) {
     super();
 
     this._parent = parent;
@@ -22,7 +22,7 @@ class ChildNode extends AsyncEventEmitter {
     return child;
   }
 
-  async fetch({type, data={}}) {
+  async fetch({ type, data = {} }) {
     let root = this.root;
     let path = this.path;
     let endpoint = root._baseURL + '/' + path;
@@ -73,7 +73,7 @@ class ChildNode extends AsyncEventEmitter {
     else {
       if (data.constructor !== globalThis.FormData) {
         headers['Content-Type'] = 'application/json; charset=utf-8';
-        body = JSON.stringify( data );
+        body = JSON.stringify(data);
       }
       else {
         // for form
@@ -173,6 +173,13 @@ class ChildNode extends AsyncEventEmitter {
     });
   }
 
+  patch(data) {
+    return this.fetch({
+      type: 'PATCH',
+      data,
+    });
+  }
+
   del(data) {
     return this.fetch({
       type: 'DELETE',
@@ -199,7 +206,7 @@ class ChildNode extends AsyncEventEmitter {
       if (node._path) {
         pathes.unshift(node._path);
       }
-    } while(node = node.parent);
+    } while (node = node.parent);
 
     let path = _path.join(...pathes);
 

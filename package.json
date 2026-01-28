@@ -3,6 +3,7 @@
   "version": "0.1.9",
   "description": "ajax library for rest like firebase",
   "main": "firerest.js",
+  "module": "firerest.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

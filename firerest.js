@@ -290,6 +290,12 @@
         data: data,
       });
     },
+    patch: function(data) {
+      return this.fetch({
+        type: 'PATCH',
+        data: data,
+      });
+    },
     post: function(data) {
       return this.fetch({
         type: 'POST',
